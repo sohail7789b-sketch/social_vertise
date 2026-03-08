@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Social_Vertise</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #9b59b6;
+            --dark-bg: #050505;
+            --card-bg: #121212;
+            --text: #fff;
+            --sidebar-w: 260px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+        body { background: var(--dark-bg); color: var(--text); display:flex; min-height:100vh; overflow-x:hidden; }
+
+        /* UI ELEMENTS */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1001; display: none; opacity: 0; transition: opacity 0.3s; }
+        .overlay.active { display: block; opacity: 1; }
+
+        .sidebar { width: var(--sidebar-w); background: #0a0a0a; border-right: 1px solid #222; display: flex; flex-direction: column; height: 100vh; position: fixed; top: 0; left: 0; z-index: 1002; transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
+        .sidebar.active { transform: translateX(0); }
+
+        @media(min-width: 769px) {
+            .sidebar { position: fixed; transform: translateX(0); z-index: 100; }
+            .main { margin-left: var(--sidebar-w); }
+            .menu-btn { display: none !important; }
+            .overlay { display: none !important; }
+        }
+
+        .logo { padding: 25px; text-align: center; font-size: 22px; font-weight: bold; color: var(--primary); border-bottom: 1px solid #222; letter-spacing: 1px; }
+        .menu { flex: 1; overflow-y: auto; padding: 15px; }
+        .item { padding: 12px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; color: #aaa; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .item:hover, .item.active { background: var(--primary); color: white; }
+        .head-cat { font-size: 11px; color: #555; text-transform: uppercase; margin: 15px 0 5px 5px; font-weight: bold; }
+
+        .main { flex: 1; display: flex; flex-direction: column; width: 100%; transition: 0.3s; margin-left: 0; }
+        .header { padding: 15px 20px; background: rgba(18,18,18,0.95); border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 900; backdrop-filter: blur(5px); }
+        .menu-btn { font-size: 24px; cursor: pointer; color: white; display: block; }
+        .wallet { background: #222; padding: 6px 15px; border-radius: 20px; border: 1px solid var(--primary); font-weight: bold; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+
+        .content { padding: 20px; padding-bottom: 80px; overflow-y: auto; height: calc(100vh - 65px); }
+        .section { display: none; animation: fadeIn 0.4s; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid #333; position: relative; }
+        .badge { font-size: 10px; padding: 3px 8px; border-radius: 4px; background: #333; text-transform: uppercase; }
+        
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 13px; text-transform: uppercase; transition: 0.2s; }
+        .btn-act { background: var(--primary); color: white; }
+        .btn-locked { background: #333; color: #777; cursor: not-allowed; border: 1px solid #444; }
+        .btn-ad { background: #f39c12; color: black; animation: pulse 2s infinite; }
+        .btn-vfy { background: #2ecc71; color: white; display: none; }
+        .btn-review { background: #9b59b6; color: white; display: none; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        .form-group { margin-bottom: 15px; }
+        input, select, textarea { width: 100%; padding: 12px; background: #080808; border: 1px solid #333; color: white; border-radius: 6px; outline: none; margin-top: 5px; }
+        .ad-box { width: 100%; min-height: 90px; background: white; display: flex; justify-content: center; align-items: center; margin: 15px 0; border-radius: 5px; overflow: hidden; }
+
+        table { width: 100%; border-collapse: collapse; background: #111; margin-top: 10px; font-size: 13px; }
+        th, td { padding: 10px; border-bottom: 1px solid #333; text-align: left; }
+        th { color: var(--primary); }
+        .st-done { color: #3498db; } .st-active { color: #2ecc71; }
+
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; display: none; justify-content: center; align-items: center; }
+        .modal-box { background: #1a1a1a; padding: 25px; border-radius: 10px; width: 90%; max-width: 400px; border: 1px solid var(--primary); }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" onclick="toggleDrawer()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="logo">Social_Vertise</div>
+        <div class="menu">
+            <div class="item active" onclick="nav('dash')"><i class="fas fa-home"></i> Dashboard</div>
+            <div class="head-cat">Earning</div>
+            <div class="item" onclick="nav('earn-ads')"><i class="fas fa-play-circle"></i> Watch Ads</div>
+            <div class="item" onclick="nav('earn-custom')"><i class="fas fa-rocket" style="color:#00e5ff"></i> Custom Tasks</div>
+            <div class="item" onclick="nav('earn-insta')"><i class="fab fa-instagram"></i> Instagram</div>
+            <div class="item" onclick="nav('earn-fb')"><i class="fab fa-facebook"></i> Facebook</div>
+            <div class="item" onclick="nav('earn-yt')"><i class="fab fa-youtube"></i> YouTube</div>
+            <div class="item" onclick="nav('earn-tg')"><i class="fab fa-telegram"></i> Telegram</div>
+            <div class="head-cat">Advertiser</div>
+            <div class="item" onclick="nav('create')"><i class="fas fa-plus-circle"></i> Create Campaign</div>
+            <div class="item" onclick="nav('my-camps')"><i class="fas fa-chart-pie"></i> Tracking</div>
+            <div class="head-cat">Support</div>
+            <div class="item" onclick="openHelp()"><i class="fas fa-headset"></i> Help Center</div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-bars menu-btn" onclick="toggleDrawer()"></i><h3>Home</h3></div>
+            <div class="wallet"><i class="fas fa-coins"></i> <span id="uCoins">0</span></div>
+        </div>
+
+        <div class="content">
+            <div class="ad-box"><script type="text/javascript">atOptions = { 'key' : 'b4457942a63e691b166fad379a531c3d', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };</script><script type="text/javascript" src="https://www.highperformanceformat.com/b4457942a63e691b166fad379a531c3d/invoke.js"></script></div>
+
+            <div id="dash" class="section active">
+                <div class="card" style="margin-bottom:20px; background:linear-gradient(45deg, #8e44ad, #333);"><h3>Welcome User</h3><p style="font-size:12px; opacity:0.8;" id="uidDisp">ID: ...</p></div>
+                <div id="bonusMsg" style="margin-bottom:20px; padding:15px; background:rgba(46, 204, 113, 0.1); border:1px solid #2ecc71; color:#2ecc71; border-radius:8px; display:none;">🎁 <b>300 Coins</b> Welcome Bonus Added!</div>
+                <div class="grid">
+                    <div class="card"><h3>💰 Balance</h3><h1 id="dCoins" style="color:var(--primary)">0</h1></div>
+                    <div class="card"><h3>✅ Completed</h3><h1 id="dDone" style="color:#2ecc71">0</h1></div>
+                    <div class="card"><h3>⏳ In Review</h3><h1 id="dRev" style="color:#f39c12">0</h1></div>
+                </div>
+                <div id="announcement" style="margin-top:20px; padding:15px; background:#f39c12; color:#000; border-radius:8px; display:none;"></div>
+            </div>
+
+            <div id="earn-ads" class="section"><h2>Watch Ads</h2><div id="list-ads" class="grid" style="margin-top:15px;"></div></div>
+            <div id="earn-custom" class="section"><h2>Custom Tasks</h2><div id="list-custom" class="grid" style="margin-top:15px;"></div></div>
+            <div id="earn-insta" class="section"><h2>Instagram</h2><div id="list-insta" class="grid" style="margin-top:15px;"></div></div>
+            <div id="earn-fb" class="section"><h2>Facebook</h2><div id="list-fb" class="grid" style="margin-top:15px;"></div></div>
+            <div id="earn-yt" class="section"><h2>YouTube</h2><div id="list-yt" class="grid" style="margin-top:15px;"></div></div>
+            <div id="earn-tg" class="section"><h2>Telegram</h2><div id="list-tg" class="grid" style="margin-top:15px;"></div></div>
+
+            <div id="create" class="section">
+                <div class="card" style="max-width:500px; margin:0 auto;">
+                    <h3>New Campaign</h3>
+                    <div class="form-group"><label>Title</label><input type="text" id="cTitle"></div>
+                    <div class="form-group"><label>Link</label><input type="url" id="cLink"></div>
+                    <div class="form-group"><label>Type</label><select id="cCat" onchange="calc()"><option value="insta-follow">Instagram Follow (30)</option><option value="insta-like">Instagram Like (15)</option><option value="fb-follow">Facebook Follow (30)</option><option value="yt-sub">YouTube Subscribe (50)</option><option value="yt-like">YouTube Like (70)</option><option value="tg-sub">Telegram Subscribe (90)</option></select></div>
+                    <div class="form-group"><label>Quantity (Min: 10)</label><input type="number" id="cQty" value="10" min="10" oninput="calc()"></div>
+                    <p>Total: <b id="cCost" style="color:var(--primary)">300</b> Coins</p>
+                    <button class="btn btn-act" style="background:var(--primary); color:white;" onclick="publish()">Submit for Review</button>
+                </div>
+            </div>
+
+            <div id="my-camps" class="section">
+                <h2>My Campaigns</h2>
+                <div class="card" style="overflow-x:auto; padding:0; margin-top: 15px;"><table style="width:100%;"><thead><tr><th>Title</th><th>Filled / Target</th><th>Status</th></tr></thead><tbody id="campBody"></tbody></table></div>
+            </div>
+
+            <div class="ad-box"><script async="async" data-cfasync="false" src="https://pl28191148.effectivegatecpm.com/6b4bf9ba798b54640fc50410686f93d7/invoke.js"></script><div id="container-6b4bf9ba798b54640fc50410686f93d7"></div></div>
+        </div>
+    </div>
+
+    <div class="modal" id="helpModal">
+        <div class="modal-box"><h3>Support</h3><textarea id="helpMsg" rows="4" style="width:100%; margin-top:10px;"></textarea><button class="btn btn-act" style="background:var(--primary); color:white;" onclick="sendSupport()">Send</button><button class="btn" style="background:#333; color:white;" onclick="document.getElementById('helpModal').style.display='none'">Close</button></div>
+    </div>
+    <div class="modal" id="notifModal"><div class="modal-box" style="border-color: #e74c3c;"><h3>Warning</h3><p id="notifText" style="margin:15px 0; color:#ddd;"></p><button class="btn btn-act" onclick="closeNotif()">OK</button></div></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, set, get, update, onValue, push, runTransaction, child, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAHQERxAtQN49mdKZnZI41RgnhN6RA0kls",
+        authDomain: "socialvertise.firebaseapp.com",
+        databaseURL: "https://socialvertise-default-rtdb.firebaseio.com",
+        projectId: "socialvertise",
+        storageBucket: "socialvertise.firebasestorage.app",
+        messagingSenderId: "601036577547",
+        appId: "1:601036577547:web:5459b52fb9f7bf7deb200e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const DIRECT_LINK = "https://www.effectivegatecpm.com/ggbww70z?key=928a34111771129f0b7316670bf21a9d";
+    const RATES = { 'insta-follow': 30, 'insta-like': 15, 'fb-follow': 30, 'fb-like': 15, 'yt-sub': 50, 'yt-like': 70, 'tg-sub': 90 };
+
+    let curUser = null, uData = {}, allTasks = {};
+
+    // --- 1. INIT ---
+    (function() {
+        let uid = localStorage.getItem('sv_uid_final');
+        if(!uid) { uid = 'u_' + Date.now(); localStorage.setItem('sv_uid_final', uid); }
+        curUser = uid;
+        document.getElementById('uidDisp').innerText = `ID: ${uid.slice(-6)}`;
+
+        const uRef = ref(db, `users/${curUser}`);
+        onValue(uRef, snap => {
+            if(snap.exists()) {
+                uData = snap.val();
+                if(uData.banned) { document.body.innerHTML = `<h1 style="color:red;text-align:center;margin-top:50px;">🚫 ACCOUNT BLOCKED</h1>`; return; }
+                if(uData.notifications) {
+                    const keys = Object.keys(uData.notifications);
+                    document.getElementById('notifText').innerText = uData.notifications[keys[0]].message;
+                    document.getElementById('notifModal').style.display = 'flex';
+                    remove(ref(db, `users/${curUser}/notifications/${keys[0]}`));
+                }
+                document.getElementById('bonusMsg').style.display = 'none';
+            } else {
+                uData = { coins: 300, completed: {}, pending_reviews: {} }; // 300 Coins as requested
+                set(uRef, uData);
+                document.getElementById('bonusMsg').style.display = 'block';
+            }
+            updateUI();
+        });
+        loadTasks(); renderMyCamps(); checkAnnounce();
+    })();
+
+    window.closeNotif = () => document.getElementById('notifModal').style.display = 'none';
+    function updateUI() { document.getElementById('uCoins').innerText = uData.coins || 0; document.getElementById('dCoins').innerText = uData.coins || 0; document.getElementById('dDone').innerText = uData.completed ? Object.keys(uData.completed).length : 0; document.getElementById('dRev').innerText = uData.pending_reviews ? Object.keys(uData.pending_reviews).length : 0; }
+    window.toggleDrawer = () => { const sb = document.getElementById('sidebar'); const ov = document.querySelector('.overlay'); sb.classList.toggle('active'); ov.classList.toggle('active'); }
+    window.nav = (id) => { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.item').forEach(i => i.classList.remove('active')); event.currentTarget.classList.add('active'); if(id.includes('earn')) renderList(id.split('-')[1]); if(window.innerWidth <= 768) window.toggleDrawer(); }
+
+    // --- 2. TASKS & FILTERING ---
+    function loadTasks() { onValue(ref(db, 'tasks'), snap => { allTasks = snap.val() || {}; }); }
+
+    function renderList(type) {
+        const div = document.getElementById(`list-${type}`);
+        if(!div) return; div.innerHTML = '';
+        const done = uData.completed || {};
+        const rev = uData.pending_reviews || {};
+
+        Object.entries(allTasks).forEach(([tid, t]) => {
+            let match = false;
+            if(type==='custom') match = t.cat==='custom';
+            else if(type==='ads') match = t.type==='admin' && t.cat==='ads';
+            else match = t.cat && t.cat.startsWith(type);
+
+            const active = t.status === 'active' || t.type==='admin';
+            const notMe = t.creator !== curUser;
+            const notDone = !done[tid] && !rev[tid];
+            // STRICT CHECK: Is Campaign Filled?
+            const notFull = t.type==='admin' ? true : ((t.filled || 0) < t.target);
+
+            if(match && active && notMe && notDone && notFull) {
+                const isCustom = type==='custom';
+                const thumb = isCustom ? `<img src="${t.thumbnail}" style="width:100%;height:100px;object-fit:cover;border-radius:5px;">` : '';
+                const timerVal = t.timer ? parseInt(t.timer) : 10;
+                let actionText = "Link";
+                if(t.cat.includes('follow')) actionText = "Follow";
+                else if(t.cat.includes('like')) actionText = "Like";
+                else if(t.cat.includes('sub')) actionText = "Subscribe";
+
+                const finalBtn = isCustom 
+                    ? `<button id="v-${tid}" class="btn btn-review" style="display:none;" onclick="subReview('${tid}')">Submit Review</button>`
+                    : `<button id="v-${tid}" class="btn btn-vfy" style="display:none;" onclick="verify('${tid}', ${t.reward})">✅ Verify & Claim</button>`;
+
+                div.innerHTML += `
+                    <div class="card" id="card-${tid}">
+                        ${thumb}
+                        <span class="badge">${t.cat || 'Task'}</span>
+                        <h3>${t.title}</h3>
+                        <p style="color:var(--primary)">+${t.reward} Coins</p>
+                        
+                        <button id="main-btn-${tid}" class="btn btn-locked" disabled><i class="fas fa-lock"></i> ${actionText}</button>
+                        <button id="ad-btn-${tid}" class="btn btn-ad" onclick="unlockTask('${tid}', '${t.link}', ${timerVal})"><i class="fas fa-play"></i> Watch Ad to Unlock</button>
+                        ${finalBtn}
+                    </div>
+                `;
+            }
+        });
+        if(div.innerHTML==='') div.innerHTML='<p style="color:#555">No tasks available.</p>';
+    }
+
+    // --- 3. FLOW ---
+    window.unlockTask = (tid, link, duration) => {
+        window.open(DIRECT_LINK, '_blank');
+        const adBtn = document.getElementById(`ad-btn-${tid}`);
+        adBtn.disabled = true; adBtn.style.background = "#333"; adBtn.style.color = "#888";
+        
+        let t = duration;
+        const i = setInterval(() => {
+            adBtn.innerText = `Wait ${t}s...`; t--;
+            if(t < 0) {
+                clearInterval(i); adBtn.style.display = 'none';
+                const mainBtn = document.getElementById(`main-btn-${tid}`);
+                mainBtn.disabled = false; mainBtn.className = "btn btn-act"; mainBtn.style.display = "block";
+                mainBtn.onclick = function() {
+                    if(link && link !== '#') window.open(link, '_blank');
+                    mainBtn.style.display = 'none';
+                    document.getElementById(`v-${tid}`).style.display = 'block';
+                };
+            }
+        }, 1000);
+    }
+
+    // --- 4. VERIFY (STRICT TRANSACTION FOR OVER-DELIVERY) ---
+    window.verify = (tid, reward) => {
+        const btn = document.getElementById(`v-${tid}`);
+        btn.innerText = "Processing..."; btn.disabled = true;
+
+        const taskRef = ref(db, `tasks/${tid}`);
+        
+        // 1. Transaction to Increment Campaign Count SAFELY
+        runTransaction(taskRef, (task) => {
+            if (task) {
+                if (task.type === 'campaign') {
+                    if ((task.filled || 0) < task.target) {
+                        task.filled = (task.filled || 0) + 1;
+                        return task; // Commit Increment
+                    } else {
+                        return; // ABORT: Campaign Full
+                    }
+                } else {
+                    return task; // Admin task: Always allow
+                }
+            }
+            return task;
+        }).then((result) => {
+            if (result.committed) {
+                // 2. Add Coins to User
+                const userRef = ref(db, `users/${curUser}`);
+                runTransaction(userRef, (user) => {
+                    if(user) {
+                        user.coins = (user.coins || 0) + parseInt(reward);
+                        if(!user.completed) user.completed = {};
+                        user.completed[tid] = true;
+                    }
+                    return user;
+                }).then(() => {
+                    alert(`Success! +${reward} Coins.`);
+                    document.getElementById(`card-${tid}`).style.display = 'none';
+                    updateUI();
+                });
+            } else {
+                alert("Task Limit Reached! No coins awarded.");
+                document.getElementById(`card-${tid}`).style.display = 'none';
+            }
+        }).catch((err) => {
+            console.error(err);
+            alert("Error processing task.");
+            btn.innerText = "Verify"; btn.disabled = false;
+        });
+    }
+
+    window.subReview = (tid) => {
+        update(ref(db, `users/${curUser}/pending_reviews/${tid}`), {time:Date.now()})
+        .then(()=>{ alert('Submitted!'); document.getElementById(`card-${tid}`).style.display='none'; });
+    }
+
+    // --- 5. CAMPAIGN ---
+    window.calc = () => {
+        const r = RATES[document.getElementById('cCat').value];
+        const q = document.getElementById('cQty').value;
+        document.getElementById('cCost').innerText = r*q;
+    }
+    window.publish = () => {
+        const t=document.getElementById('cTitle').value, l=document.getElementById('cLink').value, cat=document.getElementById('cCat').value, q=parseInt(document.getElementById('cQty').value);
+        const cost = RATES[cat]*q;
+        if(!t || !l || q<10) return alert('Check fields (Min 10)');
+        if((uData.coins||0)<cost) return alert('Low Balance');
+        
+        const coinRef = ref(db, `users/${curUser}/coins`);
+        runTransaction(coinRef, (c) => c - cost).then(() => {
+            push(ref(db, 'tasks'), { title:t, link:l, cat:cat, reward:RATES[cat], target:q, filled:0, creator:curUser, status:'pending', type:'campaign' });
+            alert('Submitted for Approval!'); window.nav('my-camps');
+        });
+    }
+    function renderMyCamps(){
+        onValue(ref(db, 'tasks'), snap=>{
+            const tb=document.getElementById('campBody'); tb.innerHTML='';
+            snap.forEach(childSnap => {
+                const task = childSnap.val();
+                if(task.creator === curUser && task.type === 'campaign') {
+                    let stText = 'Pending', stClass = 'st-pending';
+                    if(task.status === 'active') { stText = 'Running'; stClass = 'st-active'; }
+                    if(task.status === 'rejected') { stText = 'Rejected'; stClass = 'st-reject'; }
+                    if(task.filled >= task.target) { stText = 'Completed'; stClass = 'st-done'; }
+                    tb.innerHTML += `<tr><td>${task.title}</td><td>${task.filled || 0} / ${task.target}</td><td class="${stClass}">${stText}</td></tr>`;
+                }
+            });
+        });
+    }
+    window.openHelp = () => { document.getElementById('helpModal').style.display='flex'; if(window.innerWidth<=768)window.toggleDrawer(); }
+    window.sendSupport = () => { const m = document.getElementById('helpMsg').value; if(m) { push(ref(db, 'support'), {user:curUser, msg:m}); alert('Sent!'); document.getElementById('helpModal').style.display='none'; } }
+    function checkAnnounce() { onValue(ref(db, 'config/announcement'), snap=>{ const v = snap.val(); if(v && v.expires > Date.now()) { const a = document.getElementById('announcement'); a.style.display='block'; a.innerText="📢 "+v.msg; } }); }
+</script>
+</body>
+</html>
