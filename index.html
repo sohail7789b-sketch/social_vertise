@@ -16,7 +16,7 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
         body { background: var(--dark-bg); color: var(--text); display:flex; min-height:100vh; overflow-x:hidden; }
 
-        /* UI ELEMENTS */
+        /* --- UI ELEMENTS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1001; display: none; opacity: 0; transition: opacity 0.3s; }
         .overlay.active { display: block; opacity: 1; }
 
@@ -65,7 +65,42 @@
         table { width: 100%; border-collapse: collapse; background: #111; margin-top: 10px; font-size: 13px; }
         th, td { padding: 10px; border-bottom: 1px solid #333; text-align: left; }
         th { color: var(--primary); }
-        .st-done { color: #3498db; } .st-active { color: #2ecc71; }
+
+        /* --- WELCOME LETTER STYLES --- */
+        .welcome-card {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border: 1px solid var(--primary);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(155, 89, 182, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .anim-title {
+            font-size: 22px; font-weight: 800;
+            background: linear-gradient(90deg, #fff, #9b59b6, #00e5ff, #fff);
+            background-size: 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        @keyframes shine { 0% {background-position: 0%;} 100% {background-position: 200%;} }
+
+        .welcome-desc { color: #ccc; font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+        
+        .feature-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .feature-tag {
+            background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 20px;
+            font-size: 12px; font-weight: bold; border: 1px solid transparent;
+            display: flex; align-items: center; gap: 8px; transition: 0.3s;
+        }
+        .feature-tag:hover { border-color: var(--primary); background: rgba(155, 89, 182, 0.1); transform: translateY(-2px); }
+        .feature-tag i { color: var(--primary); }
 
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; display: none; justify-content: center; align-items: center; }
         .modal-box { background: #1a1a1a; padding: 25px; border-radius: 10px; width: 90%; max-width: 400px; border: 1px solid var(--primary); }
@@ -75,6 +110,7 @@
 
     <div class="overlay" onclick="toggleDrawer()"></div>
 
+    <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
         <div class="logo">Social_Vertise</div>
         <div class="menu">
@@ -94,18 +130,51 @@
         </div>
     </div>
 
+    <!-- MAIN -->
     <div class="main">
         <div class="header">
-            <div class="header-left"><i class="fas fa-bars menu-btn" onclick="toggleDrawer()"></i><h3>Home</h3></div>
+            <div class="header-left">
+                <i class="fas fa-bars menu-btn" onclick="toggleDrawer()"></i>
+                <h3>Home</h3>
+            </div>
             <div class="wallet"><i class="fas fa-coins"></i> <span id="uCoins">0</span></div>
         </div>
 
         <div class="content">
-            <div class="ad-box"><script type="text/javascript">atOptions = { 'key' : 'b4457942a63e691b166fad379a531c3d', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };</script><script type="text/javascript" src="https://www.highperformanceformat.com/b4457942a63e691b166fad379a531c3d/invoke.js"></script></div>
+            <!-- TOP AD -->
+            <div class="ad-box">
+                <script type="text/javascript">
+                    atOptions = { 'key' : 'b4457942a63e691b166fad379a531c3d', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
+                </script>
+                <script type="text/javascript" src="https://www.highperformanceformat.com/b4457942a63e691b166fad379a531c3d/invoke.js"></script>
+            </div>
 
+            <!-- DASHBOARD -->
             <div id="dash" class="section active">
-                <div class="card" style="margin-bottom:20px; background:linear-gradient(45deg, #8e44ad, #333);"><h3>Welcome User</h3><p style="font-size:12px; opacity:0.8;" id="uidDisp">ID: ...</p></div>
-                <div id="bonusMsg" style="margin-bottom:20px; padding:15px; background:rgba(46, 204, 113, 0.1); border:1px solid #2ecc71; color:#2ecc71; border-radius:8px; display:none;">🎁 <b>300 Coins</b> Welcome Bonus Added!</div>
+                
+                <!-- NEW WELCOME LETTER -->
+                <div class="welcome-card">
+                    <h2 class="anim-title">🚀 Grow Your Social Media!</h2>
+                    <p class="welcome-desc">
+                        Boost your <b>Instagram, Facebook, YouTube & Telegram</b> followers and subscribers effortlessly! 
+                        Complete simple tasks and watch your influence grow.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-tag"><i class="fas fa-play-circle"></i> Watch Ads & Earn</div>
+                        <div class="feature-tag"><i class="fas fa-tasks"></i> Complete Custom Tasks</div>
+                        <div class="feature-tag"><i class="fas fa-user-plus"></i> Follow & Earn Points</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom:20px; border-left: 4px solid var(--primary);">
+                    <h3>Account Info</h3>
+                    <p style="font-size:12px; color:#aaa;">ID: <span id="uidDisp">...</span></p>
+                </div>
+
+                <div id="bonusMsg" style="margin-bottom:20px; padding:15px; background:rgba(46, 204, 113, 0.1); border:1px solid #2ecc71; color:#2ecc71; border-radius:8px; display:none;">
+                    🎁 <b>400 Coins</b> Welcome Bonus Added!
+                </div>
+
                 <div class="grid">
                     <div class="card"><h3>💰 Balance</h3><h1 id="dCoins" style="color:var(--primary)">0</h1></div>
                     <div class="card"><h3>✅ Completed</h3><h1 id="dDone" style="color:#2ecc71">0</h1></div>
@@ -114,6 +183,7 @@
                 <div id="announcement" style="margin-top:20px; padding:15px; background:#f39c12; color:#000; border-radius:8px; display:none;"></div>
             </div>
 
+            <!-- EARN SECTIONS -->
             <div id="earn-ads" class="section"><h2>Watch Ads</h2><div id="list-ads" class="grid" style="margin-top:15px;"></div></div>
             <div id="earn-custom" class="section"><h2>Custom Tasks</h2><div id="list-custom" class="grid" style="margin-top:15px;"></div></div>
             <div id="earn-insta" class="section"><h2>Instagram</h2><div id="list-insta" class="grid" style="margin-top:15px;"></div></div>
@@ -121,31 +191,57 @@
             <div id="earn-yt" class="section"><h2>YouTube</h2><div id="list-yt" class="grid" style="margin-top:15px;"></div></div>
             <div id="earn-tg" class="section"><h2>Telegram</h2><div id="list-tg" class="grid" style="margin-top:15px;"></div></div>
 
+            <!-- CREATE CAMPAIGN -->
             <div id="create" class="section">
                 <div class="card" style="max-width:500px; margin:0 auto;">
                     <h3>New Campaign</h3>
                     <div class="form-group"><label>Title</label><input type="text" id="cTitle"></div>
                     <div class="form-group"><label>Link</label><input type="url" id="cLink"></div>
-                    <div class="form-group"><label>Type</label><select id="cCat" onchange="calc()"><option value="insta-follow">Instagram Follow (30)</option><option value="insta-like">Instagram Like (15)</option><option value="fb-follow">Facebook Follow (30)</option><option value="yt-sub">YouTube Subscribe (50)</option><option value="yt-like">YouTube Like (70)</option><option value="tg-sub">Telegram Subscribe (90)</option></select></div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="cCat" onchange="calc()">
+                            <option value="insta-follow">Instagram Follow (30)</option>
+                            <option value="insta-like">Instagram Like (15)</option>
+                            <option value="fb-follow">Facebook Follow (30)</option>
+                            <option value="yt-sub">YouTube Subscribe (50)</option>
+                            <option value="yt-like">YouTube Like (70)</option>
+                            <option value="tg-sub">Telegram Subscribe (90)</option>
+                        </select>
+                    </div>
                     <div class="form-group"><label>Quantity (Min: 10)</label><input type="number" id="cQty" value="10" min="10" oninput="calc()"></div>
                     <p>Total: <b id="cCost" style="color:var(--primary)">300</b> Coins</p>
                     <button class="btn btn-act" style="background:var(--primary); color:white;" onclick="publish()">Submit for Review</button>
                 </div>
             </div>
 
+            <!-- MY CAMPAIGNS -->
             <div id="my-camps" class="section">
                 <h2>My Campaigns</h2>
-                <div class="card" style="overflow-x:auto; padding:0; margin-top: 15px;"><table style="width:100%;"><thead><tr><th>Title</th><th>Filled / Target</th><th>Status</th></tr></thead><tbody id="campBody"></tbody></table></div>
+                <div class="card" style="overflow-x:auto; padding:0; margin-top: 15px;">
+                    <table style="width:100%;">
+                        <thead><tr><th>Title</th><th>Filled / Target</th><th>Status</th></tr></thead>
+                        <tbody id="campBody"></tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="ad-box"><script async="async" data-cfasync="false" src="https://pl28191148.effectivegatecpm.com/6b4bf9ba798b54640fc50410686f93d7/invoke.js"></script><div id="container-6b4bf9ba798b54640fc50410686f93d7"></div></div>
+            <!-- BOTTOM AD -->
+            <div class="ad-box">
+                <script async="async" data-cfasync="false" src="https://pl28191148.effectivegatecpm.com/6b4bf9ba798b54640fc50410686f93d7/invoke.js"></script>
+                <div id="container-6b4bf9ba798b54640fc50410686f93d7"></div>
+            </div>
         </div>
     </div>
 
+    <!-- HELP MODAL -->
     <div class="modal" id="helpModal">
-        <div class="modal-box"><h3>Support</h3><textarea id="helpMsg" rows="4" style="width:100%; margin-top:10px;"></textarea><button class="btn btn-act" style="background:var(--primary); color:white;" onclick="sendSupport()">Send</button><button class="btn" style="background:#333; color:white;" onclick="document.getElementById('helpModal').style.display='none'">Close</button></div>
+        <div class="modal-box">
+            <h3>Support</h3>
+            <textarea id="helpMsg" rows="4" style="width:100%; margin-top:10px;"></textarea>
+            <button class="btn btn-act" style="background:var(--primary); color:white;" onclick="sendSupport()">Send</button>
+            <button class="btn" style="background:#333; color:white;" onclick="document.getElementById('helpModal').style.display='none'">Close</button>
+        </div>
     </div>
-    <div class="modal" id="notifModal"><div class="modal-box" style="border-color: #e74c3c;"><h3>Warning</h3><p id="notifText" style="margin:15px 0; color:#ddd;"></p><button class="btn btn-act" onclick="closeNotif()">OK</button></div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -170,8 +266,8 @@
 
     // --- 1. INIT ---
     (function() {
-        let uid = localStorage.getItem('sv_uid_final');
-        if(!uid) { uid = 'u_' + Date.now(); localStorage.setItem('sv_uid_final', uid); }
+        let uid = localStorage.getItem('sv_uid_v18');
+        if(!uid) { uid = 'u_' + Date.now(); localStorage.setItem('sv_uid_v18', uid); }
         curUser = uid;
         document.getElementById('uidDisp').innerText = `ID: ${uid.slice(-6)}`;
 
@@ -179,16 +275,10 @@
         onValue(uRef, snap => {
             if(snap.exists()) {
                 uData = snap.val();
-                if(uData.banned) { document.body.innerHTML = `<h1 style="color:red;text-align:center;margin-top:50px;">🚫 ACCOUNT BLOCKED</h1>`; return; }
-                if(uData.notifications) {
-                    const keys = Object.keys(uData.notifications);
-                    document.getElementById('notifText').innerText = uData.notifications[keys[0]].message;
-                    document.getElementById('notifModal').style.display = 'flex';
-                    remove(ref(db, `users/${curUser}/notifications/${keys[0]}`));
-                }
+                if(uData.banned) { document.body.innerHTML = `<h1 style="color:red;text-align:center;margin-top:50px;">🚫 BLOCKED</h1>`; return; }
                 document.getElementById('bonusMsg').style.display = 'none';
             } else {
-                uData = { coins: 300, completed: {}, pending_reviews: {} }; // 300 Coins as requested
+                uData = { coins: 400, completed: {}, pending_reviews: {} };
                 set(uRef, uData);
                 document.getElementById('bonusMsg').style.display = 'block';
             }
@@ -197,12 +287,29 @@
         loadTasks(); renderMyCamps(); checkAnnounce();
     })();
 
-    window.closeNotif = () => document.getElementById('notifModal').style.display = 'none';
-    function updateUI() { document.getElementById('uCoins').innerText = uData.coins || 0; document.getElementById('dCoins').innerText = uData.coins || 0; document.getElementById('dDone').innerText = uData.completed ? Object.keys(uData.completed).length : 0; document.getElementById('dRev').innerText = uData.pending_reviews ? Object.keys(uData.pending_reviews).length : 0; }
-    window.toggleDrawer = () => { const sb = document.getElementById('sidebar'); const ov = document.querySelector('.overlay'); sb.classList.toggle('active'); ov.classList.toggle('active'); }
-    window.nav = (id) => { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.item').forEach(i => i.classList.remove('active')); event.currentTarget.classList.add('active'); if(id.includes('earn')) renderList(id.split('-')[1]); if(window.innerWidth <= 768) window.toggleDrawer(); }
+    function updateUI() {
+        document.getElementById('uCoins').innerText = uData.coins || 0;
+        document.getElementById('dCoins').innerText = uData.coins || 0;
+        document.getElementById('dDone').innerText = uData.completed ? Object.keys(uData.completed).length : 0;
+        document.getElementById('dRev').innerText = uData.pending_reviews ? Object.keys(uData.pending_reviews).length : 0;
+    }
 
-    // --- 2. TASKS & FILTERING ---
+    // --- 2. DRAWER ---
+    window.toggleDrawer = () => {
+        const sb = document.getElementById('sidebar');
+        const ov = document.querySelector('.overlay');
+        sb.classList.toggle('active'); ov.classList.toggle('active');
+    }
+    window.nav = (id) => {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        if(id.includes('earn')) renderList(id.split('-')[1]);
+        if(window.innerWidth <= 768) window.toggleDrawer();
+    }
+
+    // --- 3. TASKS ---
     function loadTasks() { onValue(ref(db, 'tasks'), snap => { allTasks = snap.val() || {}; }); }
 
     function renderList(type) {
@@ -220,21 +327,22 @@
             const active = t.status === 'active' || t.type==='admin';
             const notMe = t.creator !== curUser;
             const notDone = !done[tid] && !rev[tid];
-            // STRICT CHECK: Is Campaign Filled?
-            const notFull = t.type==='admin' ? true : ((t.filled || 0) < t.target);
+            const notFull = t.type==='admin' ? true : (t.filled < t.target);
 
             if(match && active && notMe && notDone && notFull) {
                 const isCustom = type==='custom';
                 const thumb = isCustom ? `<img src="${t.thumbnail}" style="width:100%;height:100px;object-fit:cover;border-radius:5px;">` : '';
-                const timerVal = t.timer ? parseInt(t.timer) : 10;
-                let actionText = "Link";
-                if(t.cat.includes('follow')) actionText = "Follow";
-                else if(t.cat.includes('like')) actionText = "Like";
-                else if(t.cat.includes('sub')) actionText = "Subscribe";
+                
+                let actionText = "Task Link";
+                if(t.cat.includes('follow')) actionText = "Follow Now";
+                else if(t.cat.includes('like')) actionText = "Like Now";
+                else if(t.cat.includes('sub')) actionText = "Subscribe Now";
 
                 const finalBtn = isCustom 
                     ? `<button id="v-${tid}" class="btn btn-review" style="display:none;" onclick="subReview('${tid}')">Submit Review</button>`
                     : `<button id="v-${tid}" class="btn btn-vfy" style="display:none;" onclick="verify('${tid}', ${t.reward})">✅ Verify & Claim</button>`;
+
+                const timerVal = t.timer ? parseInt(t.timer) : 10; 
 
                 div.innerHTML += `
                     <div class="card" id="card-${tid}">
@@ -253,7 +361,7 @@
         if(div.innerHTML==='') div.innerHTML='<p style="color:#555">No tasks available.</p>';
     }
 
-    // --- 3. FLOW ---
+    // --- 4. FLOW ---
     window.unlockTask = (tid, link, duration) => {
         window.open(DIRECT_LINK, '_blank');
         const adBtn = document.getElementById(`ad-btn-${tid}`);
@@ -275,52 +383,27 @@
         }, 1000);
     }
 
-    // --- 4. VERIFY (STRICT TRANSACTION FOR OVER-DELIVERY) ---
+    // --- 5. VERIFY ---
     window.verify = (tid, reward) => {
-        const btn = document.getElementById(`v-${tid}`);
-        btn.innerText = "Processing..."; btn.disabled = true;
-
+        const btn = document.getElementById(`v-${tid}`); btn.innerText="Processing..."; btn.disabled=true;
         const taskRef = ref(db, `tasks/${tid}`);
         
-        // 1. Transaction to Increment Campaign Count SAFELY
         runTransaction(taskRef, (task) => {
-            if (task) {
-                if (task.type === 'campaign') {
-                    if ((task.filled || 0) < task.target) {
-                        task.filled = (task.filled || 0) + 1;
-                        return task; // Commit Increment
-                    } else {
-                        return; // ABORT: Campaign Full
-                    }
-                } else {
-                    return task; // Admin task: Always allow
-                }
+            if (task && task.type === 'campaign') {
+                if ((task.filled || 0) < task.target) { task.filled = (task.filled || 0) + 1; return task; } else { return; }
             }
             return task;
-        }).then((result) => {
-            if (result.committed) {
-                // 2. Add Coins to User
-                const userRef = ref(db, `users/${curUser}`);
-                runTransaction(userRef, (user) => {
-                    if(user) {
-                        user.coins = (user.coins || 0) + parseInt(reward);
-                        if(!user.completed) user.completed = {};
-                        user.completed[tid] = true;
-                    }
-                    return user;
-                }).then(() => {
+        }).then((res) => {
+            if (res.committed) {
+                const coinRef = ref(db, `users/${curUser}/coins`);
+                runTransaction(coinRef, (c) => (c || 0) + parseInt(reward)).then(() => {
+                    set(ref(db, `users/${curUser}/completed/${tid}`), true);
                     alert(`Success! +${reward} Coins.`);
                     document.getElementById(`card-${tid}`).style.display = 'none';
-                    updateUI();
                 });
             } else {
-                alert("Task Limit Reached! No coins awarded.");
-                document.getElementById(`card-${tid}`).style.display = 'none';
+                alert("Campaign Finished!"); document.getElementById(`card-${tid}`).style.display = 'none';
             }
-        }).catch((err) => {
-            console.error(err);
-            alert("Error processing task.");
-            btn.innerText = "Verify"; btn.disabled = false;
         });
     }
 
@@ -329,7 +412,7 @@
         .then(()=>{ alert('Submitted!'); document.getElementById(`card-${tid}`).style.display='none'; });
     }
 
-    // --- 5. CAMPAIGN ---
+    // --- 6. CAMPAIGN ---
     window.calc = () => {
         const r = RATES[document.getElementById('cCat').value];
         const q = document.getElementById('cQty').value;
@@ -340,7 +423,6 @@
         const cost = RATES[cat]*q;
         if(!t || !l || q<10) return alert('Check fields (Min 10)');
         if((uData.coins||0)<cost) return alert('Low Balance');
-        
         const coinRef = ref(db, `users/${curUser}/coins`);
         runTransaction(coinRef, (c) => c - cost).then(() => {
             push(ref(db, 'tasks'), { title:t, link:l, cat:cat, reward:RATES[cat], target:q, filled:0, creator:curUser, status:'pending', type:'campaign' });
@@ -362,6 +444,7 @@
             });
         });
     }
+
     window.openHelp = () => { document.getElementById('helpModal').style.display='flex'; if(window.innerWidth<=768)window.toggleDrawer(); }
     window.sendSupport = () => { const m = document.getElementById('helpMsg').value; if(m) { push(ref(db, 'support'), {user:curUser, msg:m}); alert('Sent!'); document.getElementById('helpModal').style.display='none'; } }
     function checkAnnounce() { onValue(ref(db, 'config/announcement'), snap=>{ const v = snap.val(); if(v && v.expires > Date.now()) { const a = document.getElementById('announcement'); a.style.display='block'; a.innerText="📢 "+v.msg; } }); }
