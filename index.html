@@ -18,6 +18,27 @@
     <script type="text/javascript">
         window.atOptions = { 'key' : 'b4457942a63e691b166fad379a531c3d', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
     </script>
+
+    <!-- 4. Monetag Libtl SDK (In-App, Rewarded, Popup) -->
+    <script src='//libtl.com/sdk.js' data-zone='10996204' data-sdk='show_10996204'></script>
+    <script>
+        // In-App Interstitial (Safe Auto-Initialization)
+        let initInApp = setInterval(function() {
+            if (typeof show_10996204 === 'function') {
+                clearInterval(initInApp);
+                show_10996204({
+                  type: 'inApp',
+                  inAppSettings: {
+                    frequency: 2,
+                    capping: 0.1,
+                    interval: 30,
+                    timeout: 5,
+                    everyPage: false
+                  }
+                }).catch(e => console.log("InApp Ad Error:", e));
+            }
+        }, 1000);
+    </script>
     <!-- ================================================================ -->
 
     <style>
@@ -62,6 +83,7 @@
         /* BUTTONS */
         .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 13px; text-transform: uppercase; transition: 0.2s; }
         .btn-act { background: var(--primary); color: white; }
+        .btn-act:disabled { background: #555; cursor: not-allowed; }
         .btn-wait { background: #222; color: #666; cursor: not-allowed; border: 1px solid #333; display: none; }
         .btn-open { background: #00e5ff; color: #000; display: none; animation: pulse 1.5s infinite; }
         .btn-vfy { background: #2ecc71; color: #fff; display: none; }
@@ -274,7 +296,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getDatabase, ref, set, get, update, onValue, push, increment } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    // UPDATED FIREBASE CONFIGURATION
     const firebaseConfig = {
         apiKey: "AIzaSyAHQERxAtQN49mdKZnZI41RgnhN6RA0kls",
         authDomain: "socialvertise.firebaseapp.com",
@@ -294,6 +315,7 @@
         "https://omg10.com/4/10637755"
     ];
     function openRandomAd() {
+        // Direct Link opens in new tab whenever Task Starts
         const link = AD_LINKS[Math.floor(Math.random() * AD_LINKS.length)];
         window.open(link, '_blank');
     }
@@ -363,7 +385,7 @@
             if(match && active && notMe && notDone && notFull) {
                 const isCustom = type==='custom';
                 const thumb = isCustom && t.thumbnail ? `<img src="${t.thumbnail}" style="width:100%;height:100px;object-fit:cover;border-radius:5px;margin-bottom:10px;">` : '';
-                const btn = isCustom ? `<button id="v-${tid}" class="btn btn-review" onclick="subReview('${tid}')">Submit Review</button>` : `<button id="v-${tid}" class="btn btn-vfy" onclick="verify('${tid}', ${t.reward})">Verify Task</button>`;
+                const btn = isCustom ? `<button id="v-${tid}" class="btn btn-review" onclick="handleSubReview('${tid}')">Submit Review</button>` : `<button id="v-${tid}" class="btn btn-vfy" onclick="handleVerify('${tid}', ${t.reward})">Verify Task</button>`;
 
                 div.innerHTML += `
                     <div class="card" id="card-${tid}">${thumb}<span class="badge">${t.cat || 'Ad'}</span><h3>${t.title}</h3><p style="color:var(--primary)">+${t.reward} Coins</p>
@@ -376,15 +398,22 @@
         if(div.innerHTML==='') div.innerHTML='<p style="color:#555">No tasks available right now.</p>';
     }
 
-    // --- TASK LOGIC (DIRECT LINK ON TASK START) ---
+    // --- TASK LOGIC (MONETAG ADS INTEGRATION) ---
     window.startTask = (id, link) => {
-        openRandomAd(); // <--- Monetized direct link opens here
+        openRandomAd(); // <--- Adsterra/Monetag Direct Link Opens here safely
         document.getElementById(`s-${id}`).style.display='none';
         const w = document.getElementById(`w-${id}`); w.style.display='block'; let t=10;
         const i=setInterval(()=>{ w.innerText=`Wait ${t}s...`; t--; if(t<0) { clearInterval(i); w.style.display='none'; document.getElementById(`o-${id}`).style.display='block'; } },1000);
     }
-    window.openL = (id, link) => { if(link && link!=='#') window.open(link, '_blank'); document.getElementById(`o-${id}`).style.display='none'; document.getElementById(`v-${id}`).style.display='block'; }
-    window.verify = (id, rw) => {
+    
+    window.openL = (id, link) => { 
+        if(link && link!=='#') window.open(link, '_blank'); 
+        document.getElementById(`o-${id}`).style.display='none'; 
+        document.getElementById(`v-${id}`).style.display='block'; 
+    }
+    
+    // Reward Granting Helper Function
+    function grantReward(id, rw) {
         const up = {}; 
         up[`users/${curUser}/coins`] = increment(rw); 
         up[`users/${curUser}/completed/${id}`] = true;
@@ -398,11 +427,42 @@
             const card = document.getElementById(`card-${id}`); if(card) card.remove();
         });
     }
-    window.subReview = (id) => { 
+
+    // Task Verify Button (Triggers Monetag Rewarded Interstitial before giving reward)
+    window.handleVerify = (id, rw) => {
+        if (typeof show_10996204 === 'function') {
+            show_10996204().then(() => {
+                // User successfully watched Monetag Rewarded Ad
+                grantReward(id, rw);
+            }).catch(e => {
+                console.log("Monetag Ad Error:", e);
+                // Fallback: If ad blocker blocks it, still grant reward so user doesn't get stuck
+                grantReward(id, rw);
+            });
+        } else {
+            grantReward(id, rw);
+        }
+    }
+
+    // Custom Task Submit Helper
+    function submitTaskForReview(id) {
         update(ref(db, `users/${curUser}/pending_reviews/${id}`), {time:Date.now()}).then(()=>{
             showPopup('Submitted', 'Task submitted for manual review!', '#f39c12');
             const card = document.getElementById(`card-${id}`); if(card) card.remove();
         }); 
+    }
+
+    // Submit Review Button (Triggers Monetag Rewarded Popup)
+    window.handleSubReview = (id) => { 
+        if (typeof show_10996204 === 'function') {
+            show_10996204('pop').then(() => {
+                submitTaskForReview(id);
+            }).catch(e => {
+                submitTaskForReview(id);
+            });
+        } else {
+            submitTaskForReview(id);
+        }
     }
 
     // --- SERVICES (ADMIN CONTROLLED RECHARGE & OTT) ---
@@ -489,7 +549,6 @@
             if(snap.exists()) {
                 snap.forEach(b => {
                     const d = b.val(); let bg = d.bg || '#333';
-                    // Auto-gradient for instagram if admin just types "instagram"
                     if(d.icon.includes('instagram') && bg === '#000') bg = 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)';
                     cont.innerHTML += `<a href="${d.url}" target="_blank" class="social-btn" style="background:${bg}"><i class="${d.icon}"></i> ${d.title}</a>`;
                 });
